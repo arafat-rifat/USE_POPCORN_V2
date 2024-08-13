@@ -10,6 +10,7 @@ import WatchedBox from "./Components/WatchedBox";
 import MovieList from "./Components/MovieList";
 import Loader from "./Components/Loader";
 import ErrorMessage from "./Components/ErrorMessage";
+import MovieDetails from "./Components/MovieDetails";
 
 const tempMovieData = [
   {
@@ -66,6 +67,19 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("inception");
+  const [selectedId, setSelectedId] = useState(null);
+
+  // Function To Movie Details
+
+  function handleSelectMovie(id) {
+    setSelectedId(id);
+  }
+
+  // Function to Close Movie Details
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
 
   // Fetching Data in useEffect
   useEffect(
@@ -116,12 +130,21 @@ export default function App() {
       <Main>
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorMessage message={error} />}
         </Box>
 
         <Box>
-          <WatchedBox watched={watched} setWatched={setWatched} />
+          {selectedId ? (
+            <MovieDetails
+              selectedId={selectedId}
+              onCloseMovie={handleCloseMovie}
+            />
+          ) : (
+            <WatchedBox watched={watched} setWatched={setWatched} />
+          )}
         </Box>
       </Main>
     </>
