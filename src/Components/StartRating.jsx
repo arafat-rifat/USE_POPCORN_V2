@@ -12,16 +12,6 @@ const starContainerStyle = {
   display: "flex",
 };
 
-StartRating.prototype = {
-  maxRating: propTypes.number,
-  defaultRating: propTypes.number,
-  color: propTypes.string,
-  size: propTypes.number,
-  messages: propTypes.array,
-  className: propTypes.string,
-  onSetRating: propTypes.func,
-};
-
 // Here I am Setting Default Props
 const StartRating = ({
   maxRating = 5,
@@ -69,6 +59,16 @@ const StartRating = ({
       </p>
     </div>
   );
+};
+
+StartRating.prototype = {
+  maxRating: propTypes.number,
+  defaultRating: propTypes.number,
+  color: propTypes.string,
+  size: propTypes.number,
+  messages: propTypes.array,
+  className: propTypes.string,
+  onSetRating: propTypes.func,
 };
 
 export default StartRating;

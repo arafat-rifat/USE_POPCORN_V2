@@ -72,7 +72,7 @@ export default function App() {
   // Function To Movie Details
 
   function handleSelectMovie(id) {
-    setSelectedId(id);
+    setSelectedId((selectedId) => (id === selectedId ? null : id));
   }
 
   // Function to Close Movie Details
@@ -139,6 +139,7 @@ export default function App() {
         <Box>
           {selectedId ? (
             <MovieDetails
+              KEY={KEY}
               selectedId={selectedId}
               onCloseMovie={handleCloseMovie}
             />
