@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from "react";
 import StartRating from "./StartRating";
+import Loader from "./Loader";
 
-const MovieDetails = ({ selectedId, onCloseMovie, KEY }) => {
+const MovieDetails = ({ selectedId, onCloseMovie, KEY, onAddWatched }) => {
   const [movie, setMovie] = useState({});
+  const [isLoding, setIsLoading] = useState(false);
+  const [userRating, setUserRating] = useState("");
 
   const {
     Title: title,
@@ -16,49 +19,89 @@ const MovieDetails = ({ selectedId, onCloseMovie, KEY }) => {
     Director: director,
     Genre: genre,
   } = movie;
-  console.log(title, year);
+
+  function handleAdd() {
+    const newWatchedMovie = {
+      imdbID: selectedId,
+      title,
+      year,
+      poster,
+      imdbRating: Number(imdbRating),
+      runtime: Number(runtime.split(" ").at(0)),
+      userRating,
+    };
+
+    onAddWatched(newWatchedMovie);
+    onCloseMovie();
+  }
+
+  useEffect(
+    function () {
+      async function getMovieDetails() {
+        setIsLoading(true);
+        const res = await fetch(
+          `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+        );
+
+        const data = await res.json();
+        setMovie(data);
+        setIsLoading(false);
+      }
+
+      getMovieDetails();
+    },
+    [selectedId]
+  );
+
   useEffect(function () {
-    async function getMovieDetails() {
-      const res = await fetch(
-        `http://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
-      );
-
-      const data = await res.json();
-      setMovie(data);
-      console.log(data);
-    }
-
-    getMovieDetails();
+    document.title = `Movie | ${title}`;
   }, []);
 
   return (
     <div className="details">
-      <header>
-        <button className="btn-back" onClick={onCloseMovie}>
-          &larr;
-        </button>
-        <img src={poster} alt={`Poster of ${movie} movie`} />
-        <div className="details-overview">
-          <h2>{title}</h2>
-          <p>
-            {released} &bull; {runtime}
-          </p>
-          <p>{genre}</p>
-          <p>
-            <span>⭐</span>
-            {imdbRating} IMDb rating
-          </p>
-        </div>
-      </header>
+      {isLoding ? (
+        <Loader />
+      ) : (
+        <>
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              &larr;
+            </button>
+            <img src={poster} alt={`Poster of ${movie} movie`} />
+            <div className="details-overview">
+              <h2>{title}</h2>
+              <p>
+                {released} &bull; {runtime}
+              </p>
+              <p>{genre}</p>
+              <p>
+                <span>⭐</span>
+                {imdbRating} IMDb rating
+              </p>
+            </div>
+          </header>
 
-      <section>
-        <StartRating maxRating={10} size={24} />
-        <p>
-          <em>{plot}</em>
-        </p>
-        <p>Starring {actors}</p>
-        <p>Directed by {director}</p>
-      </section>
+          <section>
+            <div className="rating">
+              <StartRating
+                maxRating={10}
+                size={24}
+                onSetRating={setUserRating}
+              />
+              {userRating > 0 && (
+                <button className="btn-add" onClick={handleAdd}>
+                  + Add to list
+                </button>
+              )}
+            </div>
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring {actors}</p>
+            <p>Directed by {director}</p>
+          </section>
+        </>
+      )}
     </div>
   );
 };
