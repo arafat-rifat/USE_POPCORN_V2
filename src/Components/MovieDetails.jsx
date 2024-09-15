@@ -35,6 +35,27 @@ const MovieDetails = ({ selectedId, onCloseMovie, KEY, onAddWatched }) => {
     onCloseMovie();
   }
 
+  // useEffect(its create a side effect and we will use useEffect for this side effect) for work in directly DOM ,,
+
+  useEffect(
+    function () {
+      function callBack(e) {
+        console.log(e.code);
+        if (e.code === "Escape") {
+          onCloseMovie();
+          console.log("Closing");
+        }
+      }
+
+      document.addEventListener("keydown", callBack);
+
+      return function () {
+        document.removeEventListener("keydown", callBack);
+      };
+    },
+    [onCloseMovie]
+  );
+
   useEffect(
     function () {
       async function getMovieDetails() {

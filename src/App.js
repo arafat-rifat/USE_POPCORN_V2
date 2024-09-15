@@ -87,18 +87,6 @@ export default function App() {
     setWatched((watched) => [...watched, movie]);
   }
 
-  // useEffect(its create a side effect and we will use useEffect for this side effect) for work in directly DOM ,,
-
-  useEffect(function () {
-    document.addEventListener("keydown", function (e) {
-      console.log(e.code);
-      if (e.code === "Escape") {
-        handleCloseMovie();
-        console.log("Closing");
-      }
-    });
-  }, []);
-
   // Fetching Data in useEffect
   useEffect(
     function () {
