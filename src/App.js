@@ -87,15 +87,31 @@ export default function App() {
     setWatched((watched) => [...watched, movie]);
   }
 
+  // useEffect(its create a side effect and we will use useEffect for this side effect) for work in directly DOM ,,
+
+  useEffect(function () {
+    document.addEventListener("keydown", function (e) {
+      console.log(e.code);
+      if (e.code === "Escape") {
+        handleCloseMovie();
+        console.log("Closing");
+      }
+    });
+  }, []);
+
   // Fetching Data in useEffect
   useEffect(
     function () {
+      // Abort controller is for cleanup function for cleaning unnessesary fetch data
+      const controller = new AbortController();
+
       async function fetchMovie() {
         try {
           setIsLoading(true);
           setError("");
           const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
+            { signal: controller.signal }
           );
 
           if (!res.ok)
@@ -105,8 +121,11 @@ export default function App() {
           if (data.Response === "False") throw new Error(data.Error);
 
           setMovies(data.Search);
+          setError("");
         } catch (err) {
-          setError(err.message);
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
         } finally {
           setIsLoading(false);
         }
@@ -119,6 +138,10 @@ export default function App() {
       }
 
       fetchMovie();
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
