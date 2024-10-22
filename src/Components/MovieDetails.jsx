@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import StartRating from "./StartRating";
 import Loader from "./Loader";
+import { useKey } from "../useKey";
 
 const MovieDetails = ({ selectedId, onCloseMovie, KEY, onAddWatched }) => {
   const [movie, setMovie] = useState({});
@@ -47,24 +48,7 @@ const MovieDetails = ({ selectedId, onCloseMovie, KEY, onAddWatched }) => {
 
   // useEffect(its create a side effect and we will use useEffect for this side effect) for work in directly DOM ,,
 
-  useEffect(
-    function () {
-      function callBack(e) {
-        console.log(e.code);
-        if (e.code === "Escape") {
-          onCloseMovie();
-          console.log("Closing");
-        }
-      }
-
-      document.addEventListener("keydown", callBack);
-
-      return function () {
-        document.removeEventListener("keydown", callBack);
-      };
-    },
-    [onCloseMovie]
-  );
+  useKey("Escape", onCloseMovie);
 
   useEffect(
     function () {

@@ -11,6 +11,8 @@ import MovieList from "./Components/MovieList";
 import Loader from "./Components/Loader";
 import ErrorMessage from "./Components/ErrorMessage";
 import MovieDetails from "./Components/MovieDetails";
+import { useMovies } from "./useMovies";
+import { useLocalStorageStage } from "./useLocalStorageStage";
 
 // const tempMovieData = [
 //   {
@@ -62,16 +64,12 @@ import MovieDetails from "./Components/MovieDetails";
 const KEY = "66c49a6f";
 
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  // const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
-  const [watched, setWatched] = useState(function () {
-    const storedValue = localStorage.getItem("watched");
-    return JSON.parse(storedValue);
-  });
+
+  const { movies, isLoading, error } = useMovies(query, KEY, handleCloseMovie);
+
+  const [watched, setWatched] = useLocalStorageStage([], "watched");
 
   // Function To Movie Details
 
@@ -98,61 +96,6 @@ export default function App() {
   }
 
   // UseEffect For syncronusly save data in Local Storage
-
-  useEffect(
-    function () {
-      localStorage.setItem("watched", JSON.stringify(watched));
-    },
-    [watched]
-  );
-
-  // Fetching Data in useEffect
-  useEffect(
-    function () {
-      // Abort controller is for cleanup function for cleaning unnessesary fetch data
-      const controller = new AbortController();
-
-      async function fetchMovie() {
-        try {
-          setIsLoading(true);
-          setError("");
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal }
-          );
-
-          if (!res.ok)
-            throw new Error("Something went wrong with fetching movies");
-
-          const data = await res.json();
-          if (data.Response === "False") throw new Error(data.Error);
-
-          setMovies(data.Search);
-          setError("");
-        } catch (err) {
-          if (err.name !== "AbortError") {
-            setError(err.message);
-          }
-        } finally {
-          setIsLoading(false);
-        }
-      }
-
-      if (!query.length) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-
-      handleCloseMovie();
-      fetchMovie();
-
-      return function () {
-        controller.abort();
-      };
-    },
-    [query]
-  );
 
   return (
     <>
