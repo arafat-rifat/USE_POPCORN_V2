@@ -63,11 +63,15 @@ const KEY = "66c49a6f";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
+  // const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+  const [watched, setWatched] = useState(function () {
+    const storedValue = localStorage.getItem("watched");
+    return JSON.parse(storedValue);
+  });
 
   // Function To Movie Details
 
@@ -83,11 +87,24 @@ export default function App() {
 
   // Wached Movie
 
+  function handleDeleteWatched(id) {
+    setWatched((watched) => watched.filter((movie) => movie.imdbID !== id));
+  }
+
   function handleAddWatched(movie) {
     setWatched((watched) => [...watched, movie]);
-
-    localStorage.setItem("watched", JSON.stringify([...watched, movie]));
+    // We can do that in useEffect
+    //localStorage.setItem("watched", JSON.stringify([...watched, movie]));
   }
+
+  // UseEffect For syncronusly save data in Local Storage
+
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   // Fetching Data in useEffect
   useEffect(
@@ -165,7 +182,11 @@ export default function App() {
               onAddWatched={handleAddWatched}
             />
           ) : (
-            <WatchedBox watched={watched} setWatched={setWatched} />
+            <WatchedBox
+              watched={watched}
+              setWatched={setWatched}
+              handleDeleteWatched={handleDeleteWatched}
+            />
           )}
         </Box>
       </Main>
